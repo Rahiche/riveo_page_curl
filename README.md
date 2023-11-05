@@ -4,6 +4,8 @@
 ## Overview
 `riveo_page_curl` is a Flutter project aiming to replicate the unique page curl effect utilized in the Riveo app for project deletion. Dive into the shader code in `shaders/page_curl.frag` and explore the interesting Flutter logic within `project_card.dart`.
 
+Audio was added for a fun demo only, it's not synced with all cases 
+
 ## Live
 Check it out live [here](https://riveo_page_curl.codemagic.app/)
 
