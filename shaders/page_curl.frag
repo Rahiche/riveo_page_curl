@@ -21,23 +21,25 @@ mat3 scale(vec2 s, vec2 p) {
     return translate(p) * mat3(s.x, 0.0, 0.0, 0.0, s.y, 0.0, 0.0, 0.0, 1.0) * translate(-p);
 }
 
+mat3 inverse(mat3 m) {
+    float a00 = m[0][0], a01 = m[0][1], a02 = m[0][2];
+    float a10 = m[1][0], a11 = m[1][1], a12 = m[1][2];
+    float a20 = m[2][0], a21 = m[2][1], a22 = m[2][2];
+
+    float b01 = a22 * a11 - a12 * a21;
+    float b11 = -a22 * a10 + a12 * a20;
+    float b21 = a21 * a10 - a11 * a20;
+
+    float det = a00 * b01 + a01 * b11 + a02 * b21;
+
+    return mat3(b01, (-a22 * a01 + a02 * a21), (a12 * a01 - a02 * a11),
+    b11, (a22 * a00 - a02 * a20), (-a12 * a00 + a02 * a10),
+    b21, (-a21 * a00 + a01 * a20), (a11 * a00 - a01 * a10)) / det;
+}
+
 vec2 project(vec2 p, mat3 m) {
     return (inverse(m) * vec3(p, 1.0)).xy;
 }
-
-struct Paint {
-    vec4 color;
-    bool stroke;
-    float strokeWidth;
-    int blendMode;
-};
-
-struct Context {
-    vec4 color;
-    vec2 p;
-    vec2 resolution;
-};
-
 
 bool inRect(vec2 p, vec4 rct) {
     bool inRct = p.x > rct.x && p.x < rct.z && p.y > rct.y && p.y < rct.w;
@@ -68,29 +70,34 @@ out vec4 fragColor;
 void main() {
     vec2 xy = FlutterFragCoord().xy;
     vec2 center = resolution * 0.5;
+
     float dx = origin - pointer;
     float x = container.z - dx;
+
     float d = xy.x - x;
 
+    // When the fragment is outside of the radius
     if (d > r) {
         fragColor = TRANSPARENT;
+
+        // Adjust the alpha value based on distance outside the radius
         if (inRect(xy, container)) {
-            fragColor.a = mix(0.5, 0.0, (d-r)/r);
+            fragColor.a = mix(0.5, 0.0, (d - r) / r);
         }
     }
-
-    else
-    if (d > 0.0) {
+    // When the fragment is within the transition zone of the radius
+    else if (d > 0.0) {
         float theta = asin(d / r);
         float d1 = theta * r;
-        float d2 = (3.14159265 - theta) * r;
+        float d2 = (PI - theta) * r;
+        const float HALF_PI = PI / 2.0;
 
-        vec2 s = vec2(1.0 + (1.0 - sin(3.14159265/2.0 + theta)) * 0.1);
+        vec2 s = vec2(1.0 + (1.0 - sin(HALF_PI + theta)) * 0.1);
         mat3 transform = scale(s, center);
         vec2 uv = project(xy, transform);
         vec2 p1 = vec2(x + d1, uv.y);
 
-        s = vec2(1.1 + sin(3.14159265/2.0 + theta) * 0.1);
+        s = vec2(1.1 + sin(HALF_PI + theta) * 0.1);
         transform = scale(s, center);
         uv = project(xy, transform);
         vec2 p2 = vec2(x + d2, uv.y);
@@ -104,17 +111,17 @@ void main() {
             fragColor = vec4(0.0, 0.0, 0.0, 0.5);
         }
     }
+    // When the fragment is inside the radius
     else {
         vec2 s = vec2(1.2);
         mat3 transform = scale(s, center);
         vec2 uv = project(xy, transform);
 
-        vec2 p = vec2(x + abs(d) + 3.14159265 * r, uv.y);
+        vec2 p = vec2(x + abs(d) + PI * r, uv.y);
         if (inRect(p, container)) {
             fragColor = texture(image, p / resolution);
         } else {
             fragColor = texture(image, xy / resolution);
         }
     }
-
 }
