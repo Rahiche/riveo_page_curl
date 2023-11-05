@@ -40,6 +40,7 @@ dependencies:
   audioplayers: 5.2.0
   flutter_svg: 2.0.8
   flutter_animate: 4.2.0+1
+  device_frame: 1.1.0
 dev_dependencies:
   flutter_test:
     sdk: flutter
