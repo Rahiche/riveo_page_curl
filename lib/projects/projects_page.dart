@@ -1,8 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:riveo_page_curl/assets.dart';
-import 'package:riveo_page_curl/projects_list.dart';
+import 'package:riveo_page_curl/utils/assets.dart';
+import 'package:riveo_page_curl/projects/projects_list.dart';
 
 class RiveoProjectsPage extends StatefulWidget {
   const RiveoProjectsPage({super.key});
@@ -36,10 +36,7 @@ class _RiveoProjectsPageState extends State<RiveoProjectsPage> {
                   child: SizedBox(
                     width: 24,
                     height: 24,
-                    child: SvgPicture.string(
-                      Assets.cameraIcon,
-                      color: Colors.white,
-                    ),
+                    child: SvgPicture.string(Assets.cameraIcon),
                   ),
                 ),
               ),
@@ -51,7 +48,6 @@ class _RiveoProjectsPageState extends State<RiveoProjectsPage> {
                   height: 24,
                   child: SvgPicture.string(
                     Assets.listIcon,
-                    color: Colors.white,
                   ),
                 ),
               )
@@ -116,7 +112,12 @@ class _RiveoProjectsPageState extends State<RiveoProjectsPage> {
               width: 22,
               child: SvgPicture.string(
                 icon,
-                color: isSelected ? null : const Color(0xFF696969),
+                colorFilter: isSelected
+                    ? null
+                    : const ColorFilter.mode(
+                        Color(0xFF696969),
+                        BlendMode.srcATop,
+                      ),
               ),
             ),
             const SizedBox(width: 4),
